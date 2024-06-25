@@ -89,17 +89,25 @@ class VerificationKey:
 
         # evaluate f and g at zeta, then calculate the evaluation of permutation grand product polynomial
         # reference: https://github.com/sec-bit/learning-zkp/blob/master/plonk-intro-cn/4-plonk-constraints.md
-        f_eval = (
-            # TODO: your code
-        )
-        g_eval = (
-            # TODO: your code
-        )
+        def eval_term(x_eval, y):
+            return x_eval + beta * y + gamma
+
+        evals = [a_eval, b_eval, c_eval]
+        zeta_multiples = [zeta, 2*zeta, 3*zeta]
+        s_evals = [s1_eval, s2_eval, s3_eval]
+
+        f_eval = eval_term(evals[0], zeta_multiples[0]) * \
+            eval_term(evals[1], zeta_multiples[1]) * \
+            eval_term(evals[2], zeta_multiples[2])
+
+        g_eval = eval_term(evals[0], s_evals[0]) * \
+            eval_term(evals[1], s_evals[1]) * \
+            eval_term(evals[2], s_evals[2])
         permutation_grand_product_eval = z_eval * f_eval - zw_eval * g_eval
 
         # evaluate gate constraints polynomial at zeta
         gate_constraints_eval = (
-            # TODO: your code
+            ql_eval * a_eval + qr_eval * b_eval + qm_eval * a_eval * b_eval + qo_eval * c_eval + qc_eval + PI_ev    
         )
 
         permutation_first_row_eval = L0_ev * (z_eval - 1)
