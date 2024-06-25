@@ -240,7 +240,7 @@ class Prover:
         # construct gate constraints polynomial in coefficient form
         # reference: https://github.com/sec-bit/learning-zkp/blob/master/plonk-intro-cn/4-plonk-constraints.md
         gate_constraints_coeff = (
-            # TODO: your code
+            QL_coeff * A_coeff + QR_coeff * B_coeff + QM_coeff * A_coeff * B_coeff + QO_coeff * C_coeff + QC_coeff + PI_coeff
         )
 
         normal_roots = Polynomial(
@@ -267,8 +267,31 @@ class Prover:
 
         # construct permutation polynomial
         # reference: https://github.com/sec-bit/learning-zkp/blob/master/plonk-intro-cn/3-plonk-permutation.md
+        
+        # helper function
+        def create_poly(scalar):
+            return Polynomial([Scalar(0), Scalar(scalar)], Basis.MONOMIAL)
+
+        id_coeffs = [create_poly(i) for i in range(1, 4)]
+
+        beta = self.beta
+        gamma = self.gamma
+
+        def multiply_polynomials(main_coeff, id_coeff):
+            return (main_coeff + id_coeff * beta + Scalar(gamma))
+
+        coeffs = [A_coeff, B_coeff, C_coeff]
+        f_coeff = multiply_polynomials(coeffs[0], id_coeffs[0]) * \
+            multiply_polynomials(coeffs[1], id_coeffs[1]) * \
+            multiply_polynomials(coeffs[2], id_coeffs[2])
+
+        s_coeffs = [S1_coeff, S2_coeff, S3_coeff]
+        g_coeff = multiply_polynomials(coeffs[0], s_coeffs[0]) * \
+            multiply_polynomials(coeffs[1], s_coeffs[1]) * \
+            multiply_polynomials(coeffs[2], s_coeffs[2])
+                    
         permutation_grand_product_coeff = (
-            # TODO: your code
+            Z_coeff * f_coeff - ZW_coeff * g_coeff
         )
 
         permutation_first_row_coeff = (Z_coeff - Scalar(1)) * L0_coeff
